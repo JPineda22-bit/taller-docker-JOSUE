@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: prestamos-db
+    environment:
+      POSTGRES_USER: prestamos_user
+      POSTGRES_PASSWORD: prestamos_password
+      POSTGRES_DB: prestamos_db
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prestamos_user -d prestamos_db"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prestamos-app
+    ports:
+      - "9000:9000"
+    environment:
+      PRESTAMOS_DB_URL: "postgresql+psycopg://prestamos_user:prestamos_password@db:5432/prestamos_db"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

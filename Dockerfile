@@ -2,12 +2,9 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /build
 
-RUN pip install --no-cache-dir "uv==0.4.18"
+COPY requirements.txt pyproject.toml ./
 
-COPY pyproject.toml uv.lock ./
-
-RUN uv export --no-dev --format requirements-txt -o requirements.txt && \
-    pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 FROM python:3.11-slim AS final
 
